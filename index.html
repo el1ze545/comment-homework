@@ -9,48 +9,15 @@
   <body>
     <div class="container">
       <ul id="comments" class="comments">
-        <li id="comment" class="comment">
-          <div class="comment-header">
-            <div>Глеб Фокин</div>
-            <div>12.02.22 12:18</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Это будет первый комментарий на этой странице
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">3</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-        <li class="comment">
-          <div class="comment-header">
-            <div>Варвара Н.</div>
-            <div>13.02.22 19:22</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Мне нравится как оформлена эта страница! ❤
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">75</span>
-              <button class="like-button -active-like"></button>
-            </div>
-          </div>
-        </li>
+        
       </ul>
       <div class="add-form">
-        <input id ="add-name"
+        <input id="add-name"
           type="text"
           class="add-form-name"
           placeholder="Введите ваше имя"
         />
-        <textarea id ="add-text"
+        <textarea id="add-text"
           type="textarea"
           class="add-form-text"
           placeholder="Введите ваш коментарий"
@@ -68,17 +35,79 @@
     const addTextEl = document.getElementById("add-text");
     const buttonEl = document.getElementById("add-form-button");
     const commentsEl = document.getElementById("comments");
-    const commentTemplateEl = document.getElementById("comment-template");
-    
-    function formatDate() {
-        return new Date().toLocaleString('ru-RU', {
+
+    let commentsData = [
+      {
+        id: 1,
+        name: "Глеб Фокин",
+        date: "12.02.22 12:18",
+        text: "Это будет первый комментарий на этой странице",
+        likes: 3,
+        isLiked: false
+      },
+      {
+        id: 2,
+        name: "Варвара Н.",
+        date: "13.02.22 19:22",
+        text: "Мне нравится как оформлена эта страница! ❤",
+        likes: 75,
+        isLiked: true
+      }
+    ];
+
+    function formatDate(dateString = null) {
+      if (dateString) return dateString;
+      
+      return new Date().toLocaleString('ru-RU', {
         day: '2-digit',
         month: '2-digit',
-        year: 'numeric',
+        year: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
       });
+    }
+
+    function renderComments() {
+      commentsEl.innerHTML = '';
+
+      commentsData.forEach(comment => {
+        const likeClass = comment.isLiked ? '-active-like' : '';
+
+        const commentHtml = `
+          <li class="comment" data-id="${comment.id}">
+            <div class="comment-header">
+              <div>${comment.name}</div>
+              <div>${comment.date}</div>
+            </div>
+            <div class="comment-body">
+              <div class="comment-text">${comment.text}</div>
+            </div>
+            <div class="comment-footer">
+              <div class="likes">
+                <span class="likes-counter">${comment.likes}</span>
+                <button class="like-button ${likeClass}" data-id="${comment.id}"></button>
+              </div>
+            </div>
+          </li>
+        `;
+        commentsEl.insertAdjacentHTML("beforeend", commentHtml);
+      });
+    }
+
+    commentsEl.addEventListener("click", (event) => {
+      if (event.target.classList.contains('like-button')) {
+        const id = Number(event.target.dataset.id);
+
+        const foundComment = commentsData.find(comment => comment.id === id);
+
+        if (foundComment) {
+          foundComment.isLiked = !foundComment.isLiked;
+          foundComment.likes += foundComment.isLiked ? 1 : -1;
+          
+          renderComments();
+        }
       }
+    });
 
     buttonEl.addEventListener("click", () => {
       if (!addNameEl.value.trim() || !addTextEl.value.trim()) {
@@ -86,29 +115,23 @@
         return;
       }
 
-      const newComment = `
-          <li class="comment">
-            <div class="comment-header">
-              <div>${addNameEl.value.trim()}</div>
-              <div>${formatDate()}</div>
-            </div>
-            <div class="comment-body">
-              <div class="comment-text">${addTextEl.value.trim()}</div>
-            </div>
-            <div class="comment-footer">
-              <div class="likes">
-                <span class="likes-counter">0</span>
-                <button class="like-button"></button>
-              </div>
-            </div>
-          </li>
-        `;
+      const newComment = {
+        id: Date.now(), 
+        name: addNameEl.value.trim(),
+        date: formatDate(),
+        text: addTextEl.value.trim(),
+        likes: 0,
+        isLiked: false
+      };
 
-      commentsEl.innerHTML += newComment;
+      commentsData.push(newComment);
       
+      renderComments();
+
       addNameEl.value = "";
       addTextEl.value = "";
-    })
+    });
+
+    renderComments();
   </script>
 </html>
-
