@@ -55,6 +55,8 @@
       }
     ];
 
+    let replyingToCommentId = null;
+
     function formatDate(dateString = null) {
       if (dateString) return dateString;
       
@@ -69,18 +71,17 @@
 
     function renderComments() {
       commentsEl.innerHTML = '';
-
       commentsData.forEach(comment => {
         const likeClass = comment.isLiked ? '-active-like' : '';
 
         const commentHtml = `
           <li class="comment" data-id="${comment.id}">
             <div class="comment-header">
-              <div>${comment.name}</div>
-              <div>${comment.date}</div>
+              <div>${securityHtml(comment.name)}</div>
+              <div>${securityHtml(comment.date)}</div>
             </div>
             <div class="comment-body">
-              <div class="comment-text">${comment.text}</div>
+              <div class="comment-text">${securityHtml(comment.text)}</div>
             </div>
             <div class="comment-footer">
               <div class="likes">
@@ -94,7 +95,7 @@
       });
     }
 
-    commentsEl.addEventListener("click", (event) => {
+    commentsEl.addEventListener("click", () => {
       if (event.target.classList.contains('like-button')) {
         const id = Number(event.target.dataset.id);
 
@@ -105,6 +106,24 @@
           foundComment.likes += foundComment.isLiked ? 1 : -1;
           
           renderComments();
+        }
+        
+        return;
+
+      }
+
+      const commentElement = event.target.closest('.comment');
+
+      if (commentElement) {
+        const id = Number(commentElement.dataset.id)
+        const foundComment = commentsData.find(comment => comment.id === id);
+
+        if (foundComment) {
+          addTextEl.value = `>${securityHtml(foundComment.name)}:\n>${securityHtml(foundComment.text)}`;
+
+          replyingToCommentId = id;
+
+          addTextEl.focus();
         }
       }
     });
@@ -130,8 +149,20 @@
 
       addNameEl.value = "";
       addTextEl.value = "";
+      replyingToCommentId = null;
     });
 
     renderComments();
+
+    function securityHtml(unsecurityText) {
+      if (typeof unsecurityText !== 'string') {
+        return unsecurityText;
+      }
+
+      return unsecurityText
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
+    }
   </script>
 </html>
