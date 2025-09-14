@@ -2,6 +2,7 @@ import { securityHtml } from './security.js'
 import { commentsData } from './commentsData.js'
 
 export function renderComments() {
+    const commentsEl = document.getElementById('comments')
     commentsEl.innerHTML = ''
     commentsData.forEach((comment) => {
         const likeClass = comment.isLiked ? '-active-like' : ''
