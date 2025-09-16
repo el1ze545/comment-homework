@@ -1,7 +1,8 @@
 import { renderComments } from './renderComments.js'
-import { setupEventListeners } from './eventListeners.js'
+import { setupAddCommentHandler } from './eventHandlers.js'
 
 export function initApp() {
-    setupEventListeners()
+    setupAddCommentHandler()
+
     renderComments()
 }

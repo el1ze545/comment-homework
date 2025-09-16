@@ -17,4 +17,16 @@ export const commentsData = [
     },
 ]
 
-export let replyingToCommentId = null
+let replyingToCommentId = null
+
+export function getReplyingToCommentId() {
+    return replyingToCommentId
+}
+
+export function setReplyingToCommentId(id) {
+    replyingToCommentId = id
+}
+
+export function clearReplyingToCommentId() {
+    replyingToCommentId = null
+}

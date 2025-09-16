@@ -9,3 +9,7 @@ export function formatDate(dateString = null) {
         minute: '2-digit',
     })
 }
+
+export function generateId() {
+    return Date.now()
+}
