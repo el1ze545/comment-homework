@@ -1,4 +1,4 @@
-import { commentsData } from './commentsData.js'
+import { commentsData, updateComments } from './commentsData.js'
 import { securityHtml } from './security.js'
 import {
     setReplyingToCommentId,
@@ -79,8 +79,20 @@ function handleAddComment(addNameEl, addTextEl, commentsEl) {
         isLiked: false,
     }
 
-    commentsData.push(newComment)
-    renderComments()
+    // commentsData.push(newComment)
+    // renderComments()
+
+    fetch('https://wedev-api.sky.pro/api/v1/ilya-sozykin/comments', {
+        method: 'POST',
+        body: JSON.stringify(newComment),
+    })
+        .then((response) => {
+            return response.json()
+        })
+        .then((data) => {
+            updateComments(data.comments)
+            renderComments()
+        })
 
     addNameEl.value = ''
     addTextEl.value = ''

@@ -1,21 +1,4 @@
-export const commentsData = [
-    {
-        id: 1,
-        name: 'Глеб Фокин',
-        date: '12.02.22 12:18',
-        text: 'Это будет первый комментарий на этой странице',
-        likes: 3,
-        isLiked: false,
-    },
-    {
-        id: 2,
-        name: 'Варвара Н.',
-        date: '13.02.22 19:22',
-        text: 'Мне нравится как оформлена эта страница! ❤',
-        likes: 75,
-        isLiked: true,
-    },
-]
+export let commentsData = []
 
 let replyingToCommentId = null
 
@@ -29,4 +12,20 @@ export function setReplyingToCommentId(id) {
 
 export function clearReplyingToCommentId() {
     replyingToCommentId = null
+}
+
+export let updateComments = (newCommentsData) => {
+    commentsData = newCommentsData
+}
+
+export const formatDate = (dateString) => {
+    const date = new Date(dateString)
+
+    return date.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })
 }
