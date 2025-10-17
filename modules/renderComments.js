@@ -1,18 +1,28 @@
 import { securityHtml } from './security.js'
-import { commentsData, formatDate } from './commentsData.js'
+import { formatDate, getComments } from './commentsData.js'
 import { setupLikeHandlers, setupQuoteHandlers } from './eventHandlers.js'
 
 export function renderComments() {
+    const comments = getComments()
     const commentsEl = document.getElementById('comments')
+
     commentsEl.innerHTML = ''
 
-    commentsData.forEach((comment) => {
-        const likeClass = comment.isLiked ? '-active-like' : ''
+    if (!comments || !Array.isArray(comments)) {
+        return
+    }
+
+    comments.forEach((comment) => {
+        const authorName = comment.author ? comment.author.name : 'Аноним'
+        const likesCount = comment.likes || 0
+        const isLiked = comment.isLiked || false
+
+        const likeClass = isLiked ? '-active-like' : ''
 
         const commentHtml = `
             <li class="comment" data-id="${comment.id}">
                 <div class="comment-header">
-                    <div>${securityHtml(comment.author.name)}</div>
+                    <div>${securityHtml(authorName)}</div>
                     <div>${securityHtml(formatDate(comment.date))}</div>
                 </div>
                 <div class="comment-body">
@@ -20,7 +30,7 @@ export function renderComments() {
                 </div>
                 <div class="comment-footer">
                     <div class="likes">
-                        <span class="likes-counter">${comment.likes}</span>
+                        <span class="likes-counter">${likesCount}</span>
                         <button class="like-button ${likeClass}" data-id="${comment.id}"></button>
                     </div>
                 </div>

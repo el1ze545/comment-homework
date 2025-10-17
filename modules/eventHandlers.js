@@ -1,11 +1,10 @@
-import { commentsData, updateComments } from './commentsData.js'
+import { updateComments, getComments } from './commentsData.js'
 import { securityHtml } from './security.js'
 import {
     setReplyingToCommentId,
     clearReplyingToCommentId,
 } from './commentsData.js'
 import { renderComments } from './renderComments.js'
-import { generateId, formatDate } from './utils.js'
 
 export function setupLikeHandlers() {
     const likeButtons = document.querySelectorAll('.like-button')
@@ -36,51 +35,52 @@ export function setupAddCommentHandler() {
     const buttonEl = document.getElementById('add-form-button')
     const addNameEl = document.getElementById('add-name')
     const addTextEl = document.getElementById('add-text')
-    const commentsEl = document.getElementById('comments')
 
     buttonEl.addEventListener('click', () => {
-        handleAddComment(addNameEl, addTextEl, commentsEl)
+        handleAddComment(addNameEl, addTextEl)
     })
 }
 
 function handleLikeClick(id) {
-    const foundComment = commentsData.find((comment) => comment.id === id)
+    const comments = getComments()
+    const foundComment = comments.find((comment) => comment.id === id)
 
     if (foundComment) {
         foundComment.isLiked = !foundComment.isLiked
         foundComment.likes += foundComment.isLiked ? 1 : -1
+
+        const updatedComments = comments.map((comment) =>
+            comment.id === id ? foundComment : comment,
+        )
+        updateComments(updatedComments)
         renderComments()
     }
 }
 
 function handleQuoteClick(id) {
     const addTextEl = document.getElementById('add-text')
-    const foundComment = commentsData.find((comment) => comment.id === id)
+    const foundComment = getComments().find((comment) => comment.id === id)
 
     if (foundComment) {
-        addTextEl.value = `>${securityHtml(foundComment.name)}:\n>${securityHtml(foundComment.text)}`
+        const authorName = foundComment.author
+            ? foundComment.author.name
+            : 'Аноним'
+        addTextEl.value = `>${securityHtml(authorName)}:\n>${securityHtml(foundComment.text)}`
         setReplyingToCommentId(id)
         addTextEl.focus()
     }
 }
 
-function handleAddComment(addNameEl, addTextEl, commentsEl) {
+function handleAddComment(addNameEl, addTextEl) {
     if (!addNameEl.value.trim() || !addTextEl.value.trim()) {
         alert('Пожалуйста, заполните все поля ввода!')
         return
     }
 
     const newComment = {
-        id: generateId(),
         name: addNameEl.value.trim(),
-        date: formatDate(),
         text: addTextEl.value.trim(),
-        likes: 0,
-        isLiked: false,
     }
-
-    // commentsData.push(newComment)
-    // renderComments()
 
     fetch('https://wedev-api.sky.pro/api/v1/ilya-sozykin/comments', {
         method: 'POST',
@@ -90,8 +90,17 @@ function handleAddComment(addNameEl, addTextEl, commentsEl) {
             return response.json()
         })
         .then((data) => {
+            return fetch(
+                'https://wedev-api.sky.pro/api/v1/ilya-sozykin/comments',
+            )
+        })
+        .then((response) => response.json())
+        .then((data) => {
             updateComments(data.comments)
             renderComments()
+        })
+        .catch((error) => {
+            console.error('Ошибка:', error)
         })
 
     addNameEl.value = ''

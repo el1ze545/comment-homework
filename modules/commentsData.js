@@ -18,6 +18,10 @@ export let updateComments = (newCommentsData) => {
     commentsData = newCommentsData
 }
 
+export function getComments() {
+    return commentsData
+}
+
 export const formatDate = (dateString) => {
     const date = new Date(dateString)
 
