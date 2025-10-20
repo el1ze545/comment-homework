@@ -5,6 +5,7 @@ import {
     clearReplyingToCommentId,
 } from './commentsData.js'
 import { renderComments } from './renderComments.js'
+import { postComment, getComments as fetchComments } from './api.js'
 
 export function setupLikeHandlers() {
     const likeButtons = document.querySelectorAll('.like-button')
@@ -78,29 +79,21 @@ function handleAddComment(addNameEl, addTextEl) {
     }
 
     const newComment = {
-        name: addNameEl.value.trim(),
-        text: addTextEl.value.trim(),
+        name: addNameEl.value,
+        text: addTextEl.value,
     }
 
-    fetch('https://wedev-api.sky.pro/api/v1/ilya-sozykin/comments', {
-        method: 'POST',
-        body: JSON.stringify(newComment),
-    })
-        .then((response) => {
-            return response.json()
+    postComment(newComment)
+        .then(() => {
+            return fetchComments()
         })
-        .then((data) => {
-            return fetch(
-                'https://wedev-api.sky.pro/api/v1/ilya-sozykin/comments',
-            )
-        })
-        .then((response) => response.json())
-        .then((data) => {
-            updateComments(data.comments)
+        .then((comments) => {
+            updateComments(comments)
             renderComments()
         })
         .catch((error) => {
             console.error('Ошибка:', error)
+            alert('Не удалось добавить комментарий')
         })
 
     addNameEl.value = ''

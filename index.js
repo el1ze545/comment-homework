@@ -1,15 +1,13 @@
 import { updateComments } from './modules/commentsData.js'
 import { renderComments } from './modules/renderComments.js'
 import { setupAddCommentHandler } from './modules/eventHandlers.js'
+import { getComments } from './modules/api.js'
 
 setupAddCommentHandler()
 
-fetch('https://wedev-api.sky.pro/api/v1/ilya-sozykin/comments')
-    .then((response) => {
-        return response.json()
-    })
-    .then((data) => {
-        updateComments(data.comments)
+getComments()
+    .then((comments) => {
+        updateComments(comments)
         renderComments()
     })
     .catch((error) => {
