@@ -36,9 +36,10 @@ export function setupAddCommentHandler() {
     const buttonEl = document.getElementById('add-form-button')
     const addNameEl = document.getElementById('add-name')
     const addTextEl = document.getElementById('add-text')
+    const addFormEl = document.getElementById('add-form')
 
     buttonEl.addEventListener('click', () => {
-        handleAddComment(addNameEl, addTextEl)
+        handleAddComment(addNameEl, addTextEl, addFormEl)
     })
 }
 
@@ -72,11 +73,16 @@ function handleQuoteClick(id) {
     }
 }
 
-function handleAddComment(addNameEl, addTextEl) {
+function handleAddComment(addNameEl, addTextEl, addFormEl) {
     if (!addNameEl.value.trim() || !addTextEl.value.trim()) {
         alert('Пожалуйста, заполните все поля ввода!')
         return
     }
+
+    const enableFormHtml = addFormEl.innerHTML
+
+    addFormEl.innerHTML =
+        '<div class="loading-message">Комментарий добавляется...</div>'
 
     const newComment = {
         name: addNameEl.value,
@@ -90,10 +96,18 @@ function handleAddComment(addNameEl, addTextEl) {
         .then((comments) => {
             updateComments(comments)
             renderComments()
+
+            addFormEl.innerHTML = enableFormHtml
+
+            setupAddCommentHandler()
         })
         .catch((error) => {
             console.error('Ошибка:', error)
             alert('Не удалось добавить комментарий')
+
+            addFormEl.innerHTML = enableFormHtml
+
+            setupAddCommentHandler()
         })
 
     addNameEl.value = ''

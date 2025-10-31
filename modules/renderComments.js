@@ -3,14 +3,15 @@ import { formatDate, getComments } from './commentsData.js'
 import { setupLikeHandlers, setupQuoteHandlers } from './eventHandlers.js'
 
 export function renderComments() {
-    const comments = getComments()
     const commentsEl = document.getElementById('comments')
 
-    commentsEl.innerHTML = ''
+    const comments = getComments()
 
     if (!comments || !Array.isArray(comments)) {
         return
     }
+
+    commentsEl.innerHTML = ''
 
     comments.forEach((comment) => {
         const authorName = comment.author ? comment.author.name : 'Аноним'
