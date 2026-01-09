@@ -14,9 +14,12 @@ export function renderComments() {
     commentsEl.innerHTML = ''
 
     comments.forEach((comment) => {
-        const authorName = comment.author ? comment.author.name : 'Аноним'
+        const authorName =
+            comment.name || (comment.author ? comment.author.name : 'Аноним')
+
         const likesCount = comment.likes || 0
         const isLiked = comment.isLiked || false
+        const date = comment.date || new Date().toISOString()
 
         const likeClass = isLiked ? '-active-like' : ''
 
@@ -24,7 +27,7 @@ export function renderComments() {
             <li class="comment" data-id="${comment.id}">
                 <div class="comment-header">
                     <div>${securityHtml(authorName)}</div>
-                    <div>${securityHtml(formatDate(comment.date))}</div>
+                    <div>${securityHtml(formatDate(date))}</div>
                 </div>
                 <div class="comment-body">
                     <div class="comment-text">${securityHtml(comment.text)}</div>

@@ -1,4 +1,4 @@
-import { updateComments, getComments } from './commentsData.js'
+import { updateComments, getComments, addComment } from './commentsData.js'
 import { securityHtml } from './security.js'
 import {
     setReplyingToCommentId,
@@ -79,38 +79,57 @@ function handleAddComment(addNameEl, addTextEl, addFormEl) {
         return
     }
 
-    const enableFormHtml = addFormEl.innerHTML
+    const buttonEl = addFormEl.querySelector('button')
+    const originalButtonText = buttonEl.textContent
 
-    addFormEl.innerHTML =
-        '<div class="loading-message">Комментарий добавляется...</div>'
+    buttonEl.textContent = 'Отправляется...'
+    buttonEl.disabled = true
+    addNameEl.disabled = true
+    addTextEl.disabled = true
+
+    const nameValue = addNameEl.value
+    const textValue = addTextEl.value
 
     const newComment = {
-        name: addNameEl.value,
-        text: addTextEl.value,
+        name: nameValue,
+        text: textValue,
     }
 
     postComment(newComment)
-        .then(() => {
+        .then((result) => {
+            console.log('Ответ от сервера:', result)
+
             return fetchComments()
         })
-        .then((comments) => {
-            updateComments(comments)
+        .then((updatedComments) => {
+            updateComments(updatedComments)
             renderComments()
 
-            addFormEl.innerHTML = enableFormHtml
-
-            setupAddCommentHandler()
+            addNameEl.value = ''
+            addTextEl.value = ''
+            clearReplyingToCommentId()
         })
+
         .catch((error) => {
-            console.error('Ошибка:', error)
-            alert('Не удалось добавить комментарий')
+            console.log('Ошибка при добавлении комментария:', error.message)
 
-            addFormEl.innerHTML = enableFormHtml
+            addNameEl.value = nameValue
+            addTextEl.value = textValue
 
-            setupAddCommentHandler()
+            if (error.message === 'Ошибка подключения к интернету') {
+                alert('Проверьте подключение к интернету')
+            } else if (error.message === 'Сервер сломался') {
+                alert('Сервер временно недоступен, попробуйте позже')
+            } else if (error.message === 'Плохой запрос') {
+                alert('Имя и комментарий должны быть не короче 3-х символов')
+            } else {
+                alert('Произошла ошибка при добавлении комментария')
+            }
         })
-
-    addNameEl.value = ''
-    addTextEl.value = ''
-    clearReplyingToCommentId()
+        .finally(() => {
+            buttonEl.textContent = originalButtonText
+            buttonEl.disabled = false
+            addNameEl.disabled = false
+            addTextEl.disabled = false
+        })
 }

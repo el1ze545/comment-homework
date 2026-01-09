@@ -33,3 +33,7 @@ export const formatDate = (dateString) => {
         minute: '2-digit',
     })
 }
+
+export const addComment = (newComment) => {
+    commentsData.push(newComment)
+}
